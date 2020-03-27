@@ -8,12 +8,13 @@
       <!-- 登录 -->
       <el-form
         :model="loginForm"
+        :rules="loginFormRules"
         ref="loginForm"
         label-width="0"
         class="login_form"
       >
         <!-- name -->
-        <el-form-item>
+        <el-form-item prop="username">
           <el-input
             v-model="loginForm.username"
             prefix-icon="el-icon-user"
@@ -21,7 +22,7 @@
         </el-form-item>
 
         <!-- password -->
-        <el-form-item>
+        <el-form-item prop="password">
           <el-input
             v-model="loginForm.password"
             type="password"
@@ -45,8 +46,18 @@ export default {
     return {
       // 登录表单的数据对象
       loginForm: {
-        username: 'xiaofan',
-        password: '2345'
+        username: '',
+        password: ''
+      },
+      loginFormRules: {
+        username: [
+          { required: true, message: '请输入用户名', trigger: 'blur' },
+          { min: 3, max: 10, message: '长度在3--10个字符', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          { min: 6, max: 15, message: '长度在6--15个字符', trigger: 'blur' }
+        ]
       }
     }
   }
