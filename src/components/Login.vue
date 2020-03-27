@@ -9,7 +9,7 @@
       <el-form
         :model="loginForm"
         :rules="loginFormRules"
-        ref="loginForm"
+        ref="loginFormRef"
         label-width="0"
         class="login_form"
       >
@@ -32,8 +32,8 @@
 
         <!-- button -->
         <el-form-item class="btns">
-          <el-button type="primary">登录</el-button>
-          <el-button type="info">重置</el-button>
+          <el-button type="primary" @click="login">登录</el-button>
+          <el-button type="info" @click="resetLoginForm">重置</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -46,8 +46,8 @@ export default {
     return {
       // 登录表单的数据对象
       loginForm: {
-        username: '',
-        password: ''
+        username: 'admin',
+        password: '123456'
       },
       loginFormRules: {
         username: [
@@ -59,6 +59,24 @@ export default {
           { min: 6, max: 15, message: '长度在6--15个字符', trigger: 'blur' }
         ]
       }
+    }
+  },
+  methods: {
+    login() {
+      this.$refs.loginFormRef.validate(async valid => {
+        if (!valid) return false
+        const { data: res } = await this.$http.post('login', this.loginForm)
+        if (res.meta.status !== 200) return this.$message.error('登录失败')
+        // console.log('res: ', res.data)
+        this.$message.success('登录成功')
+        // 保存token, 调用其他api时候需要, 且旨在当前网站有用
+        window.sessionStorage.setItem('token', res.data.token)
+        this.$router.push('/home')
+      })
+    },
+    // 重置表单
+    resetLoginForm() {
+      this.$refs.loginFormRef.resetFields()
     }
   }
 }
