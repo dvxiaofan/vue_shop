@@ -5,6 +5,7 @@ import {
   FormItem,
   Input,
   Message,
+  MessageBox,
   Container,
   Header,
   Aside,
@@ -48,3 +49,4 @@ Vue.use(Tooltip)
 Vue.use(Pagination)
 Vue.use(Dialog)
 Vue.prototype.$message = Message
+Vue.prototype.$confirm = MessageBox.confirm
