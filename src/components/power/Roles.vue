@@ -33,7 +33,11 @@
               @click="showEditDialog(scope.row.id)"
               >编辑</el-button
             >
-            <el-button type="danger" size="mini" icon="el-icon-delete"
+            <el-button
+              type="danger"
+              size="mini"
+              icon="el-icon-delete"
+              @click="deleteRoleById(scope.row.id)"
               >删除</el-button
             >
             <el-button type="warning" size="mini" icon="el-icon-setting"
@@ -206,6 +210,29 @@ export default {
         this.getRolesList()
         this.$message.success('编辑角色信息成功')
       })
+    },
+    async deleteRoleById(id) {
+      const confirmResult = await this.$confirm(
+        '此操作将永久删除该角色, 是否继续?',
+        '提示',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      ).catch(error => error)
+
+      if (confirmResult !== 'confirm') {
+        return this.$message.info('已取消删除')
+      }
+
+      const { data: res } = await this.$http.delete('roles/' + id)
+      if (res.meta.status !== 200) {
+        return this.$message.error('删除角色失败')
+      }
+
+      this.$message.success('删除角色成功')
+      this.getRolesList()
     }
   }
 }
