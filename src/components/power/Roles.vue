@@ -25,8 +25,12 @@
         <el-table-column label="角色名称" prop="roleName"> </el-table-column>
         <el-table-column label="角色描述" prop="roleDesc"> </el-table-column>
         <el-table-column label="操作" width="300px">
-          <template slot-scope="">
-            <el-button type="primary" size="mini" icon="el-icon-edit"
+          <template slot-scope="scope">
+            <el-button
+              type="primary"
+              size="mini"
+              icon="el-icon-edit"
+              @click="showEditDialog(scope.row.id)"
               >编辑</el-button
             >
             <el-button type="danger" size="mini" icon="el-icon-delete"
@@ -68,6 +72,34 @@
         <el-button type="primary" @click="addRole">确 定</el-button>
       </span>
     </el-dialog>
+
+    <!-- 编辑用户弹出对话框 -->
+    <el-dialog
+      title="编辑用户信息"
+      :visible.sync="editDialogVisible"
+      width="50%"
+      @close="editDialogClosed"
+    >
+      <!-- 编辑角色对话框内容主体 -->
+      <el-form
+        :model="editForm"
+        :rules="editFormRules"
+        ref="editFormRef"
+        label-width="80px"
+      >
+        <el-form-item label="角色名称" prop="roleName">
+          <el-input v-model="editForm.roleName"></el-input>
+        </el-form-item>
+
+        <el-form-item label="角色描述" prop="roleDesc">
+          <el-input type="roleDesc" v-model="editForm.roleDesc"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="editRole">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -91,13 +123,17 @@ export default {
             message: '角色名长度在3--10个字符',
             trigger: 'blur'
           }
-        ],
-        roleDesc: [
-          { required: true, message: '请输入角色描述', trigger: 'blur' },
+        ]
+      },
+      editDialogVisible: false,
+      editForm: {},
+      editFormRules: {
+        roleName: [
+          { required: true, message: '请输入角色名', trigger: 'blur' },
           {
-            min: 6,
-            max: 20,
-            message: '角色描述长度在6--20个字符',
+            min: 3,
+            max: 10,
+            message: '角色名长度在3--10个字符',
             trigger: 'blur'
           }
         ]
@@ -136,6 +172,39 @@ export default {
         this.$message.success('角色添加成功')
         this.addDialogVisible = false
         this.getRolesList()
+      })
+    },
+    async showEditDialog(id) {
+      // 获取对应ID角色信息
+      const { data: res } = await this.$http.get('roles/' + id)
+      if (res.meta.status !== 200) {
+        return this.$message.error('获取角色信息失败')
+      }
+      this.editForm = res.data
+      this.editDialogVisible = true
+    },
+    editDialogClosed() {
+      this.$refs.editFormRef.resetFields()
+    },
+    editRole() {
+      this.$refs.editFormRef.validate(async valid => {
+        if (!valid) return false
+
+        // 发起编辑角色请求
+        const { data: res } = await this.$http.put(
+          'roles/' + this.editForm.roleId,
+          {
+            roleName: this.editForm.roleName,
+            roleDesc: this.editForm.roleDesc || ' '
+          }
+        )
+
+        if (res.meta.status !== 200) {
+          return this.$message.error('编辑角色信息失败!')
+        }
+        this.editDialogVisible = false
+        this.getRolesList()
+        this.$message.success('编辑角色信息成功')
       })
     }
   }
