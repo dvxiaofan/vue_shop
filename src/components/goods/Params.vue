@@ -51,12 +51,18 @@
               prop="attr_name"
             ></el-table-column>
             <el-table-column label="操作">
-              <el-button type="primary" icon="el-icon-edit" size="mini"
-                >编辑</el-button
-              >
-              <el-button type="danger" icon="el-icon-delete" size="mini"
-                >删除</el-button
-              >
+              <template slot-scope="scope">
+                <el-button
+                  type="primary"
+                  icon="el-icon-edit"
+                  size="mini"
+                  @click="showEditDialog(scope.row.attr_id)"
+                  >编辑</el-button
+                >
+                <el-button type="danger" icon="el-icon-delete" size="mini"
+                  >删除</el-button
+                >
+              </template>
             </el-table-column>
           </el-table>
         </el-tab-pane>
@@ -79,12 +85,18 @@
               prop="attr_name"
             ></el-table-column>
             <el-table-column label="操作">
-              <el-button type="primary" icon="el-icon-edit" size="mini"
-                >编辑</el-button
-              >
-              <el-button type="danger" icon="el-icon-delete" size="mini"
-                >删除</el-button
-              >
+              <template slot-scope="scope">
+                <el-button
+                  type="primary"
+                  icon="el-icon-edit"
+                  size="mini"
+                  @click="showEditDialog(scope.row.attr_id)"
+                  >编辑</el-button
+                >
+                <el-button type="danger" icon="el-icon-delete" size="mini"
+                  >删除</el-button
+                >
+              </template>
             </el-table-column>
           </el-table>
         </el-tab-pane>
@@ -112,6 +124,29 @@
           <el-button type="primary" @click="addCate">确 定</el-button>
         </span>
       </el-dialog>
+
+      <!-- 修改参数弹出对话框 -->
+      <el-dialog
+        :title="'修改' + titleText"
+        :visible.sync="editDialogVisible"
+        width="50%"
+        @close="editDialogClosed"
+      >
+        <el-form
+          :model="editForm"
+          :rules="editFormRules"
+          ref="editFormRef"
+          label-width="100px"
+        >
+          <el-form-item :label="titleText" prop="attr_name">
+            <el-input v-model="editForm.attr_name"></el-input>
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="editDialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="editFarams">确 定</el-button>
+        </span>
+      </el-dialog>
     </el-card>
   </div>
 </template>
@@ -128,7 +163,7 @@ export default {
         children: 'children'
       },
       // 级联选择框双向绑定的数组
-      // todo: 方便测试, 先写死假数据
+      // TODO: 方便测试, 先写死假数据
       seletedCateKeys: [1335, 1343, 1354],
       // 被激活的tabs
       activeName: 'many',
@@ -141,6 +176,13 @@ export default {
         attr_name: ''
       },
       addFormRules: {
+        attr_name: [
+          { required: true, message: '请输入参数名称', trigger: 'blur' }
+        ]
+      },
+      editDialogVisible: false,
+      editForm: {},
+      editFormRules: {
         attr_name: [
           { required: true, message: '请输入参数名称', trigger: 'blur' }
         ]
@@ -212,6 +254,48 @@ export default {
         this.$message.success('添加参数成功')
         this.addDialogVisible = false
         this.getParamsData()
+      })
+    },
+    // 显示编辑对话框
+    async showEditDialog(attrId) {
+      const { data: res } = await this.$http.get(
+        `categories/${this.cateId}/attributes/${attrId}`,
+        {
+          params: { attr_sel: this.activeName }
+        }
+      )
+
+      if (res.meta.status !== 200) {
+        this.$message.error('获取参数失败')
+      }
+
+      this.editForm = res.data
+
+      this.editDialogVisible = true
+    },
+    // 关闭修改参数对话框
+    editDialogClosed() {
+      // 重置表单
+      this.$refs.editFormRef.resetFields()
+    },
+    // 编辑参数事件
+    editFarams() {
+      this.$refs.editFormRef.validate(async valid => {
+        if (!valid) return false
+        const { data: res } = await this.$http.put(
+          `categories/${this.cateId}/attributes/${this.editForm.attr_id}`,
+          {
+            attr_name: this.editForm.attr_name,
+            attr_sel: this.activeName
+          }
+        )
+
+        if (res.meta.status !== 200) {
+          return this.$message.error('修改参数失败')
+        }
+        this.$message.success('修改参数成功')
+        this.getParamsData()
+        this.editDialogVisible = false
       })
     }
   },
