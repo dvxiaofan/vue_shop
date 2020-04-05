@@ -171,8 +171,7 @@ export default {
         children: 'children'
       },
       // 级联选择框双向绑定的数组
-      // TODO: 方便测试, 先写死假数据
-      seletedCateKeys: [1335, 1343, 1354],
+      seletedCateKeys: [],
       // 被激活的tabs
       activeName: 'many',
       // 动态参数列表数据
