@@ -95,22 +95,21 @@
         :title="'添加' + titleText"
         :visible.sync="addDialogVisible"
         width="50%"
+        @close="addDialogClosed"
       >
         <el-form
           :model="addForm"
           :rules="addFormRules"
-          ref="addForm"
+          ref="addFormRef"
           label-width="100px"
         >
-          <el-form-item label="活动名称" prop="name">
-            <el-input v-model="addForm.name"></el-input>
+          <el-form-item :label="titleText" prop="attr_name">
+            <el-input v-model="addForm.attr_name"></el-input>
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
           <el-button @click="addDialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="addDialogVisible = false"
-            >确 定</el-button
-          >
+          <el-button type="primary" @click="addCate">确 定</el-button>
         </span>
       </el-dialog>
     </el-card>
@@ -129,7 +128,8 @@ export default {
         children: 'children'
       },
       // 级联选择框双向绑定的数组
-      seletedCateKeys: [],
+      // todo: 方便测试, 先写死假数据
+      seletedCateKeys: [1335, 1343, 1354],
       // 被激活的tabs
       activeName: 'many',
       // 动态参数列表数据
@@ -138,10 +138,12 @@ export default {
       onlyTableData: [],
       addDialogVisible: false,
       addForm: {
-        name: ''
+        attr_name: ''
       },
       addFormRules: {
-        name: []
+        attr_name: [
+          { required: true, message: '请输入参数名称', trigger: 'blur' }
+        ]
       }
     }
   },
@@ -185,6 +187,32 @@ export default {
       } else {
         this.onlyTableData = res.data
       }
+    },
+    // 添加对话框的关闭事件
+    addDialogClosed() {
+      this.$refs.addFormRef.resetFields()
+    },
+    // 点击确定添加参数
+    addCate() {
+      this.$refs.addFormRef.validate(async valid => {
+        if (!valid) return false
+
+        const { data: res } = await this.$http.post(
+          `categories/${this.cateId}/attributes`,
+          {
+            attr_name: this.addForm.attr_name,
+            attr_sel: this.activeName
+          }
+        )
+
+        if (res.meta.status !== 201) {
+          return this.$message.error('添加参数失败')
+        }
+
+        this.$message.success('添加参数成功')
+        this.addDialogVisible = false
+        this.getParamsData()
+      })
     }
   },
   computed: {
