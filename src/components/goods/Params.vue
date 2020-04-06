@@ -90,6 +90,7 @@
                   closable
                   v-for="(item, index) in scope.row.attr_vals"
                   :key="index"
+                  @close="handleClose(index, scope.row)"
                   >{{ item }}</el-tag
                 >
                 <!-- 输入文本框 -->
@@ -378,6 +379,25 @@ export default {
       // 输入了内容, 做后续操作
       row.attr_vals.push(row.inputValue.trim())
       // 发起网络请求, 保存操作数据
+      this.saveAttrValues(row)
+    },
+    // 点击按钮展示输入文本框
+    showInput(row) {
+      row.inputVisible = true
+      // $nextTick : 当页面上元素被重新渲染之后才会执行
+      this.$nextTick(_ => {
+        this.$refs.saveTagInput.$refs.input.focus()
+      })
+    },
+    // 删除对应参数
+    handleClose(index, row) {
+      row.attr_vals.splice(index, 1)
+      // 发起网络请求, 保存操作数据
+      this.saveAttrValues(row)
+    },
+    // 修改参数后保存到数据库
+    async saveAttrValues(row) {
+      // 发起网络请求, 保存操作数据
       const { data: res } = await this.$http.put(
         `categories/${this.cateId}/attributes/${row.attr_id}`,
         {
@@ -394,14 +414,6 @@ export default {
 
       row.inputValue = ''
       row.inputVisible = false
-    },
-    // 点击按钮展示输入文本框
-    showInput(row) {
-      row.inputVisible = true
-      // $nextTick : 当页面上元素被重新渲染之后才会执行
-      this.$nextTick(_ => {
-        this.$refs.saveTagInput.$refs.input.focus()
-      })
     }
   },
   computed: {
