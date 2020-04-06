@@ -82,7 +82,37 @@
           <!-- 静态属性表格 -->
           <el-table :data="onlyTableData" border stripe>
             <!-- 展开行 -->
-            <el-table-column type="expand"></el-table-column>
+            <el-table-column type="expand">
+              <template slot-scope="scope">
+                <!-- 循环渲染tag -->
+                <el-tag
+                  type="success"
+                  closable
+                  v-for="(item, index) in scope.row.attr_vals"
+                  :key="index"
+                  >{{ item }}</el-tag
+                >
+                <!-- 输入文本框 -->
+                <el-input
+                  class="input-new-tag"
+                  v-if="scope.row.inputVisible"
+                  v-model="scope.row.iinputValue"
+                  ref="saveTagInput"
+                  size="small"
+                  @keyup.enter.native="handleInputConfirm"
+                  @blur="handleInputConfirm"
+                >
+                </el-input>
+                <!-- 添加按钮 -->
+                <el-button
+                  v-else
+                  class="button-new-tag"
+                  size="small"
+                  @click="showInput(scope.row)"
+                  >+ New Tag</el-button
+                >
+              </template>
+            </el-table-column>
             <el-table-column type="index" label="#"></el-table-column>
             <el-table-column
               label="属性名称"
@@ -230,6 +260,14 @@ export default {
         return this.$message.error('获取参数列表失败!')
       }
 
+      res.data.forEach(item => {
+        item.attr_vals = item.attr_vals ? item.attr_vals.split(',') : []
+        // 控制文本框的显示与隐藏
+        item.inputVisible = false
+        // 文本框的输入值
+        item.inputValue = ''
+      })
+
       // 判断数据分类
       if (this.activeName === 'many') {
         this.manyTableData = res.data
@@ -329,6 +367,18 @@ export default {
       }
       this.$message.success('删除参数成功')
       this.getParamsData()
+    },
+    // 文本框失去焦点或者按下anter都会触发
+    handleInputConfirm() {
+      console.log('hello')
+    },
+    // 点击按钮展示输入文本框
+    showInput(row) {
+      row.inputVisible = true
+      // $nextTick : 当页面上元素被重新渲染之后才会执行
+      this.$nextTick(_ => {
+        this.$refs.saveTagInput.$refs.input.focus()
+      })
     }
   },
   computed: {
@@ -360,5 +410,12 @@ export default {
 <style lang="less" scoped>
 .cat_opt {
   margin: 15px 0;
+}
+.el-tag {
+  margin: 10px;
+}
+
+.input-new-tag {
+  width: 120px;
 }
 </style>
