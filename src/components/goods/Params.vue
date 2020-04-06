@@ -96,11 +96,11 @@
                 <el-input
                   class="input-new-tag"
                   v-if="scope.row.inputVisible"
-                  v-model="scope.row.iinputValue"
+                  v-model="scope.row.inputValue"
                   ref="saveTagInput"
                   size="small"
-                  @keyup.enter.native="handleInputConfirm"
-                  @blur="handleInputConfirm"
+                  @keyup.enter.native="handleInputConfirm(scope.row)"
+                  @blur="handleInputConfirm(scope.row)"
                 >
                 </el-input>
                 <!-- 添加按钮 -->
@@ -369,8 +369,31 @@ export default {
       this.getParamsData()
     },
     // 文本框失去焦点或者按下anter都会触发
-    handleInputConfirm() {
-      console.log('hello')
+    async handleInputConfirm(row) {
+      if (row.inputValue.trim().length === 0) {
+        row.inputValue = ''
+        row.inputVisible = false
+        return false
+      }
+      // 输入了内容, 做后续操作
+      row.attr_vals.push(row.inputValue.trim())
+      // 发起网络请求, 保存操作数据
+      const { data: res } = await this.$http.put(
+        `categories/${this.cateId}/attributes/${row.attr_id}`,
+        {
+          attr_name: row.attr_name,
+          attr_sel: row.attr_sel,
+          attr_vals: row.attr_vals.join(',')
+        }
+      )
+
+      if (res.meta.status !== 200) {
+        this.$message.error('修改参数失败')
+      }
+      this.$message.success('修改参数成功')
+
+      row.inputValue = ''
+      row.inputVisible = false
     },
     // 点击按钮展示输入文本框
     showInput(row) {
