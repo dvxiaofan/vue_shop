@@ -130,8 +130,29 @@ export default {
       console.log('edit: ', goodsId)
     },
     // 删除商品
-    deleteGoodsById(goodsId) {
-      console.log('delete: ', goodsId)
+    async deleteGoodsById(goodsId) {
+      const confirmResult = await this.$confirm(
+        '此操作将永久删除该商品, 是否继续?',
+        '提示',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      ).catch(error => error)
+
+      if (confirmResult !== 'confirm') {
+        return this.$message.info('已取消删除')
+      }
+
+      const { data: res } = await this.$http.delete(`goods/${goodsId}`)
+
+      if (res.meta.status !== 200) {
+        return this.$message.error('商品删除失败')
+      }
+
+      this.$message.success('商品删除成功')
+      this.getGoodsList()
     }
   }
 }
