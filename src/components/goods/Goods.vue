@@ -11,8 +11,17 @@
     <el-card>
       <el-row :gutter="20">
         <el-col :span="8">
-          <el-input placeholder="请输入内容">
-            <el-button slot="append" icon="el-icon-search"></el-button>
+          <el-input
+            placeholder="请输入内容"
+            v-model="queryInfo.query"
+            clearable
+            @clear="getGoodsList"
+          >
+            <el-button
+              slot="append"
+              icon="el-icon-search"
+              @click="getGoodsList"
+            ></el-button>
           </el-input>
         </el-col>
         <el-col :span="4">
@@ -62,6 +71,7 @@
         :page-size="queryInfo.pagesize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="total"
+        background
       >
       </el-pagination>
     </el-card>
@@ -97,7 +107,7 @@ export default {
         return this.$message.error('获取商品列表失败')
       }
 
-      this.$message.success('获取商品列表成功')
+      // this.$message.success('获取商品列表成功')
       this.goodsList = res.data.goods
       this.total = res.data.total
     },
