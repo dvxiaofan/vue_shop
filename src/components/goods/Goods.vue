@@ -26,27 +26,29 @@
       <el-table :data="goodsList" border stripe>
         <el-table-column label="#" type="index"> </el-table-column>
         <el-table-column label="商品名称" prop="goods_name"> </el-table-column>
-        <el-table-column label="商品价格(元)" prop="goods_price">
+        <el-table-column label="商品价格(元)" prop="goods_price" width="95px">
         </el-table-column>
-        <el-table-column label="商品重量" prop="goods_weight">
+        <el-table-column label="商品重量" prop="goods_weight" width="70px">
         </el-table-column>
-        <el-table-column label="创建时间" prop="add_time"> </el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="创建时间" width="150px">
+          <template slot-scope="scope">
+            {{ scope.row.add_time | dateFormat }}
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="130px">
           <template slot-scope="scope">
             <el-button
               type="primary"
               icon="el-icon-edit"
               size="mini"
               @click="editGoodsById(scope.row.goods_id)"
-              >编辑</el-button
-            >
+            ></el-button>
             <el-button
-              type="primary"
-              icon="el-icon-edit"
+              type="danger"
+              icon="el-icon-delete"
               size="mini"
               @click="deleteGoodsById(scope.row.goods_id)"
-              >删除</el-button
-            >
+            ></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -94,9 +96,6 @@ export default {
       if (res.meta.status !== 200) {
         return this.$message.error('获取商品列表失败')
       }
-
-      // TODO:  log
-      console.log('resData: ', res.data)
 
       this.$message.success('获取商品列表成功')
       this.goodsList = res.data.goods

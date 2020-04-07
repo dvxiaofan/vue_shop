@@ -21,6 +21,21 @@ Vue.config.productionTip = false
 // 注册为全局可用的组件
 Vue.component('tree-table', TreeTables)
 
+// 全局时间过滤器
+Vue.filter('dateFormat', function(originVal) {
+  const dt = new Date(originVal)
+  const year = dt.getFullYear()
+  // 处理不足两位的月份
+  const month = (dt.getMonth() + 1 + '').padStart(2, '0')
+  const day = (dt.getDay() + '').padStart(2, '0')
+
+  const hour = (dt.getHours() + '').padStart(2, '0')
+  const minus = (dt.getMinutes() + '').padStart(2, '0')
+  const seconds = (dt.getSeconds() + '').padStart(2, '0')
+
+  return `${year}-${month}-${day} ${hour}:${minus}:${seconds}`
+})
+
 new Vue({
   router,
   render: h => h(App)
