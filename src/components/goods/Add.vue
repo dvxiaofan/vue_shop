@@ -95,15 +95,7 @@
               v-for="item in onlyTableData"
               :key="item.attr_id"
             >
-              <!-- 复选框组 -->
-              <el-checkbox-group v-model="item.attr_vals">
-                <el-checkbox
-                  v-for="(cb, index) in item.attr_vals"
-                  :key="index"
-                  :label="cb"
-                  border
-                ></el-checkbox>
-              </el-checkbox-group>
+              <el-input v-model="item.attr_vals"></el-input>
             </el-form-item>
           </el-tab-pane>
           <el-tab-pane label="商品图片" name="3">商品图片</el-tab-pane>
@@ -193,26 +185,32 @@ export default {
     async tabClick() {
       // console.log(this.activeIndex)
       if (this.activeIndex === '1') {
-        this.manyTableData = await this.getParamsData('many')
-      } else if (this.activeIndex === '2') {
-        this.onlyTableData = await this.getParamsData('only')
-      }
-    },
-    async getParamsData(dataType) {
-      const { data: res } = await this.$http.get(
-        `categories/${this.cateId}/attributes`,
-        {
-          params: { sel: dataType }
+        const { data: res } = await this.$http.get(
+          `categories/${this.cateId}/attributes`,
+          {
+            params: { sel: 'many' }
+          }
+        )
+        if (res.meta.status !== 200) {
+          return this.$message.error('获取商品参数失败')
         }
-      )
-      if (res.meta.status !== 200) {
-        return this.$message.error('获取失败')
+        res.data.forEach(item => {
+          item.attr_vals =
+            item.attr_vals.length === 0 ? [] : item.attr_vals.split(',')
+        })
+        this.manyTableData = res.data
+      } else if (this.activeIndex === '2') {
+        const { data: res } = await this.$http.get(
+          `categories/${this.cateId}/attributes`,
+          {
+            params: { sel: 'only' }
+          }
+        )
+        if (res.meta.status !== 200) {
+          return this.$message.error('获取商品属性失败')
+        }
+        this.onlyTableData = res.data
       }
-      res.data.forEach(item => {
-        item.attr_vals =
-          item.attr_vals.length === 0 ? [] : item.attr_vals.split(',')
-      })
-      return res.data
     }
   },
   computed: {
