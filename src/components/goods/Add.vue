@@ -98,7 +98,20 @@
               <el-input v-model="item.attr_vals"></el-input>
             </el-form-item>
           </el-tab-pane>
-          <el-tab-pane label="商品图片" name="3">商品图片</el-tab-pane>
+          <el-tab-pane label="商品图片" name="3">
+            <!-- 上传图片 -->
+            <!-- action: 图片上传的地址 -->
+            <el-upload
+              class="upload-demo"
+              :action="uploadURL"
+              :on-preview="handlePreview"
+              :on-remove="handleRemove"
+              :file-list="fileList"
+              list-type="picture"
+            >
+              <el-button size="small" type="primary">点击上传</el-button>
+            </el-upload>
+          </el-tab-pane>
           <el-tab-pane label="商品内容" name="4">商品内容</el-tab-pane>
         </el-tabs>
       </el-form>
@@ -144,7 +157,10 @@ export default {
         children: 'children'
       },
       manyTableData: [],
-      onlyTableData: []
+      onlyTableData: [],
+      // 上传图片的URL地址
+      uploadURL: 'https://www.liulongbin.top:8888/api/private/v1/upload',
+      fileList: []
     }
   },
   created() {
@@ -211,6 +227,14 @@ export default {
         }
         this.onlyTableData = res.data
       }
+    },
+    // 图片删除
+    handleRemove(file, fileList) {
+      console.log(file, fileList)
+    },
+    // 图片预览事件
+    handlePreview(file) {
+      console.log(file)
     }
   },
   computed: {
