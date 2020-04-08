@@ -45,6 +45,7 @@
           v-model="activeIndex"
           tab-position="left"
           :before-leave="beforeTabLeave"
+          @tab-click="tabClick"
         >
           <el-tab-pane label="基本信息" name="0">
             <el-form-item label="商品名称" prop="goods_name">
@@ -69,8 +70,42 @@
               ></el-cascader>
             </el-form-item>
           </el-tab-pane>
-          <el-tab-pane label="商品参数" name="1">商品参数</el-tab-pane>
-          <el-tab-pane label="商品属性" name="2">商品属性</el-tab-pane>
+          <el-tab-pane label="商品参数" name="1">
+            <!-- 表单item -->
+            <el-form-item
+              :label="item.attr_name"
+              v-for="item in manyTableData"
+              :key="item.attr_id"
+            >
+              <!-- 复选框组 -->
+              <el-checkbox-group v-model="item.attr_vals">
+                <el-checkbox
+                  v-for="(cb, index) in item.attr_vals"
+                  :key="index"
+                  :label="cb"
+                  border
+                ></el-checkbox>
+              </el-checkbox-group>
+            </el-form-item>
+          </el-tab-pane>
+          <el-tab-pane label="商品属性" name="2">
+            <!-- 表单item -->
+            <el-form-item
+              :label="item.attr_name"
+              v-for="item in onlyTableData"
+              :key="item.attr_id"
+            >
+              <!-- 复选框组 -->
+              <el-checkbox-group v-model="item.attr_vals">
+                <el-checkbox
+                  v-for="(cb, index) in item.attr_vals"
+                  :key="index"
+                  :label="cb"
+                  border
+                ></el-checkbox>
+              </el-checkbox-group>
+            </el-form-item>
+          </el-tab-pane>
           <el-tab-pane label="商品图片" name="3">商品图片</el-tab-pane>
           <el-tab-pane label="商品内容" name="4">商品内容</el-tab-pane>
         </el-tabs>
@@ -86,11 +121,11 @@ export default {
       // 当前步骤索引
       activeIndex: '0',
       addForm: {
-        goods_name: '',
+        goods_name: '333',
         goods_price: 0,
         goods_weight: 0,
         goods_number: 0,
-        goods_cat: []
+        goods_cat: [1402, 1410, 1423]
       },
       addFormRules: {
         goods_name: [
@@ -115,7 +150,9 @@ export default {
         label: 'cat_name',
         value: 'cat_id',
         children: 'children'
-      }
+      },
+      manyTableData: [],
+      onlyTableData: []
     }
   },
   created() {
@@ -152,6 +189,39 @@ export default {
       //     return false
       //   }
       // })
+    },
+    async tabClick() {
+      // console.log(this.activeIndex)
+      if (this.activeIndex === '1') {
+        this.manyTableData = await this.getParamsData('many')
+      } else if (this.activeIndex === '2') {
+        this.onlyTableData = await this.getParamsData('only')
+      }
+    },
+    async getParamsData(dataType) {
+      const { data: res } = await this.$http.get(
+        `categories/${this.cateId}/attributes`,
+        {
+          params: { sel: dataType }
+        }
+      )
+      if (res.meta.status !== 200) {
+        return this.$message.error('获取失败')
+      }
+      res.data.forEach(item => {
+        item.attr_vals =
+          item.attr_vals.length === 0 ? [] : item.attr_vals.split(',')
+      })
+      return res.data
+    }
+  },
+  computed: {
+    // 动态计算参数ID
+    cateId() {
+      if (this.addForm.goods_cat.length === 3) {
+        return this.addForm.goods_cat[2]
+      }
+      return null
     }
   }
 }
@@ -163,5 +233,8 @@ export default {
 }
 .el-step__title {
   font-size: 13px;
+}
+.el-checkbox {
+  margin: 0 8px 0 !important;
 }
 </style>
