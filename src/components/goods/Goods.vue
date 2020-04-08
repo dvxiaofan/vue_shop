@@ -25,9 +25,7 @@
           </el-input>
         </el-col>
         <el-col :span="4">
-          <el-button type="primary" @click="showAddGoodsDialog"
-            >添加商品</el-button
-          >
+          <el-button type="primary" @click="goAddGoodsPage">添加商品</el-button>
         </el-col>
       </el-row>
 
@@ -121,9 +119,9 @@ export default {
       this.queryInfo.pagenum = newPage
       this.getGoodsList()
     },
-    // 展示添加商品弹窗
-    showAddGoodsDialog() {
-      console.log('addGoods')
+    // 跳转到添加商品页面
+    goAddGoodsPage() {
+      this.$router.push('/goods/add')
     },
     // 编辑商品
     editGoodsById(goodsId) {
