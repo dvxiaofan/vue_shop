@@ -38,7 +38,8 @@ import {
   CheckboxGroup,
   Upload,
   Timeline,
-  TimelineItem
+  TimelineItem,
+  Loading
 } from 'element-ui'
 
 Vue.use(Button)
@@ -78,5 +79,6 @@ Vue.use(CheckboxGroup)
 Vue.use(Upload)
 Vue.use(Timeline)
 Vue.use(TimelineItem)
+Vue.use(Loading)
 Vue.prototype.$message = Message
 Vue.prototype.$confirm = MessageBox.confirm
