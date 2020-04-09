@@ -108,6 +108,8 @@
               :on-remove="handleRemove"
               :file-list="fileList"
               list-type="picture"
+              :headers="headerObj"
+              :on-success="handleSuccess"
             >
               <el-button size="small" type="primary">点击上传</el-button>
             </el-upload>
@@ -130,8 +132,11 @@ export default {
         goods_price: 0,
         goods_weight: 0,
         goods_number: 0,
-        goods_cat: [1402, 1410, 1423]
+        goods_cat: [1402, 1410, 1423],
+        // 图片数组
+        pics: []
       },
+      fileList: [],
       addFormRules: {
         goods_name: [
           { required: true, message: '请输入商品名称', trigger: 'blur' }
@@ -160,7 +165,10 @@ export default {
       onlyTableData: [],
       // 上传图片的URL地址
       uploadURL: 'https://www.liulongbin.top:8888/api/private/v1/upload',
-      fileList: []
+      // 图片上传的请求头
+      headerObj: {
+        Authorization: window.sessionStorage.getItem('token')
+      }
     }
   },
   created() {
@@ -228,9 +236,22 @@ export default {
         this.onlyTableData = res.data
       }
     },
+    // 上传图片成功
+    handleSuccess(res) {
+      // 拼接图片对象
+      const picInfo = { pic: res.data.tmp_path }
+      // 保存到数组
+      this.addForm.pics.push(picInfo)
+    },
     // 图片删除
-    handleRemove(file, fileList) {
-      console.log(file, fileList)
+    handleRemove(file) {
+      // 将要删除的图片临时路径
+      const filePath = file.response.data.tmp_path
+      // 获取索引
+      const picIndex = this.addForm.pics.findIndex(x => x.pic === filePath)
+
+      // 删除
+      this.addForm.pics.splice(picIndex, 1)
     },
     // 图片预览事件
     handlePreview(file) {
