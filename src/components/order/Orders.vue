@@ -27,7 +27,7 @@
       </el-row>
 
       <!-- 订单列表 -->
-      <el-table :data="ordersList" border stripe>
+      <el-table :data="ordersList" border stripe v-loading="loading">
         <el-table-column label="#" type="index"></el-table-column>
         <el-table-column label="订单编号" prop="order_number"></el-table-column>
         <el-table-column
@@ -173,7 +173,8 @@ export default {
           time: '',
           context: ''
         }
-      ]
+      ],
+      loading: true
     }
   },
   created() {
@@ -192,6 +193,7 @@ export default {
       // console.log('order: ', res.data)
       this.ordersList = res.data.goods
       this.total = res.data.total
+      this.loading = false
     },
     // 监听pagesize改变
     handleSizeChange(newSize) {
