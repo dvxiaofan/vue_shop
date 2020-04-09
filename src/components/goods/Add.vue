@@ -114,7 +114,15 @@
               <el-button size="small" type="primary">点击上传</el-button>
             </el-upload>
           </el-tab-pane>
-          <el-tab-pane label="商品内容" name="4">商品内容</el-tab-pane>
+          <el-tab-pane label="商品内容" name="4">
+            <quill-editor
+              ref="myQuillEditor"
+              v-model="addForm.goods_introduce"
+            />
+            <el-button type="primary" class="btnAdd" @click="addGoods"
+              >添加商品</el-button
+            >
+          </el-tab-pane>
         </el-tabs>
       </el-form>
     </el-card>
@@ -132,19 +140,23 @@
 </template>
 
 <script>
+import _ from 'lodash'
 export default {
   data() {
     return {
       // 当前步骤索引
       activeIndex: '0',
       addForm: {
-        goods_name: '333',
+        goods_name: '',
         goods_price: 0,
         goods_weight: 0,
         goods_number: 0,
         goods_cat: [1402, 1410, 1423],
         // 图片数组
-        pics: []
+        pics: [],
+        // 商品描述
+        goods_introduce: '',
+        attrs: []
       },
       fileList: [],
       addFormRules: {
@@ -273,6 +285,47 @@ export default {
     // 关闭弹出框时清除URL
     dialogClosed() {
       this.previewPath = ''
+    },
+    // 添加商品按钮事件
+    addGoods() {
+      this.$refs.addFormRef.validate(async valid => {
+        if (!valid) {
+          return this.$message.error('请填写必要的表单项')
+        }
+        this.addForm.attrs = []
+        // 执行添加操作
+        // lodash cloneDeep(obj)
+        const formData = _.cloneDeep(this.addForm)
+        formData.goods_cat = formData.goods_cat.join(',')
+
+        // 处理动态参数
+        this.manyTableData.forEach(item => {
+          const newInfo = {
+            attr_id: item.attr_id,
+            attr_value: item.attr_vals.join(' ')
+          }
+          this.addForm.attrs.push(newInfo)
+        })
+        // 处理静态属性
+        this.onlyTableData.forEach(item => {
+          const newInfo = {
+            attr_id: item.attr_id,
+            attr_value: item.attr_vals
+          }
+          this.addForm.attrs.push(newInfo)
+        })
+        formData.attrs = this.addForm.attrs
+
+        // console.log('formData: ', formData)
+        const { data: res } = await this.$http.post('goods', formData)
+
+        if (res.meta.status !== 201) {
+          return this.$message.error('添加商品失败')
+        }
+
+        this.$message.success('添加商品成功')
+        this.$router.push('/goods')
+      })
     }
   },
   computed: {
@@ -299,5 +352,8 @@ export default {
 }
 .prew-img {
   width: 100%;
+}
+.btnAdd {
+  margin: 15px 0;
 }
 </style>
