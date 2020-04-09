@@ -63,7 +63,7 @@
               type="primary"
               icon="el-icon-edit"
               size="mini"
-              @click="editOrderById(scope.row.order_id)"
+              @click="ShowAddressDialog(scope.row.order_id)"
             ></el-button>
             <el-button
               type="success"
@@ -87,10 +87,42 @@
       >
       </el-pagination>
     </el-card>
+
+    <el-dialog
+      title="编辑订单"
+      :visible.sync="addressDialogVisible"
+      width="50%"
+      @close="addressDialogClosed"
+    >
+      <el-form
+        :model="addressForm"
+        :rules="addressFormRules"
+        ref="addressFormRef"
+        label-width="100px"
+      >
+        <el-form-item label="省市区/县" prop="address1">
+          <el-cascader
+            :options="cityData"
+            :props="cityProps"
+            v-model="addressForm.address1"
+            @change="handleCityChange"
+          >
+          </el-cascader>
+        </el-form-item>
+        <el-form-item label="详细地址" prop="address2">
+          <el-input v-model="addressForm.address2"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="addressDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="editOrder">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import cityData from './citydata'
 export default {
   data() {
     return {
@@ -100,7 +132,24 @@ export default {
         pagesize: 10
       },
       ordersList: [],
-      total: 0
+      total: 0,
+      addressDialogVisible: false,
+      addressForm: {
+        address1: [],
+        address2: ''
+      },
+      addressFormRules: {
+        address1: [
+          { required: true, message: '请选择省市区县', trigger: 'blur' }
+        ],
+        address2: [
+          { required: true, message: '请填写详细地址', trigger: 'blur' }
+        ]
+      },
+      cityData,
+      cityProps: {
+        expandTrigger: 'hover'
+      }
     }
   },
   created() {
@@ -130,12 +179,36 @@ export default {
       this.queryInfo.pagenum = newPage
       this.getOrdersList()
     },
-    // 编辑订单
-    editOrderById(orderId) {
-      console.log('edit order by id', orderId)
+    // 显示编辑订单弹窗
+    async ShowAddressDialog(orderId) {
+      this.addressDialogVisible = true
+
+      // 根据ID获取订单详情
+      const { data: res } = await this.$http.get(`orders/${orderId}`)
+
+      if (res.meta.status !== 200) {
+        return this.$message.error('获取订单详情失败')
+      }
+
+      console.log('orderDetail: ', res.data)
+      this.addressForm = res.data
+    },
+    // 提交编辑订单信息
+    editOrder() {
+      console.log('edit: ', this.addressForm)
+    },
+    handleCityChange() {
+      console.log('change')
+    },
+    addressDialogClosed() {
+      this.$refs.addressFormRef.resetFields()
     }
   }
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="less" scoped>
+.el-cascader {
+  width: 100%;
+}
+</style>
