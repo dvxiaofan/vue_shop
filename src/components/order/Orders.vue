@@ -58,19 +58,18 @@
           </template>
         </el-table-column>
         <el-table-column label="操作" width="130px">
-          <template slot-scope="scope">
-            <el-button
-              type="primary"
-              icon="el-icon-edit"
-              size="mini"
-              @click="ShowAddressDialog(scope.row.order_id)"
-            ></el-button>
-            <el-button
-              type="success"
-              icon="el-icon-location"
-              size="mini"
-            ></el-button>
-          </template>
+          <el-button
+            type="primary"
+            icon="el-icon-edit"
+            size="mini"
+            @click="showAddressDialog"
+          ></el-button>
+          <el-button
+            type="success"
+            icon="el-icon-location"
+            size="mini"
+            @click="showProgressBox"
+          ></el-button>
         </el-table-column>
       </el-table>
 
@@ -89,7 +88,7 @@
     </el-card>
 
     <el-dialog
-      title="编辑订单"
+      title="修改地址"
       :visible.sync="addressDialogVisible"
       width="50%"
       @close="addressDialogClosed"
@@ -117,6 +116,24 @@
         <el-button @click="addressDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="editOrder">确 定</el-button>
       </span>
+    </el-dialog>
+
+    <!-- 查看物流 -->
+    <el-dialog
+      title="查看物流"
+      :visible.sync="progressDialogVisible"
+      width="50%"
+      @close="progressClosed"
+    >
+      <el-timeline>
+        <el-timeline-item
+          v-for="(activity, index) in progerssInfo"
+          :key="index"
+          :timestamp="activity.time"
+        >
+          {{ activity.context }}
+        </el-timeline-item>
+      </el-timeline>
     </el-dialog>
   </div>
 </template>
@@ -149,7 +166,14 @@ export default {
       cityData,
       cityProps: {
         expandTrigger: 'hover'
-      }
+      },
+      progressDialogVisible: false,
+      progerssInfo: [
+        {
+          time: '',
+          context: ''
+        }
+      ]
     }
   },
   created() {
@@ -180,18 +204,8 @@ export default {
       this.getOrdersList()
     },
     // 显示编辑订单弹窗
-    async ShowAddressDialog(orderId) {
+    showAddressDialog() {
       this.addressDialogVisible = true
-
-      // 根据ID获取订单详情
-      const { data: res } = await this.$http.get(`orders/${orderId}`)
-
-      if (res.meta.status !== 200) {
-        return this.$message.error('获取订单详情失败')
-      }
-
-      console.log('orderDetail: ', res.data)
-      this.addressForm = res.data
     },
     // 提交编辑订单信息
     editOrder() {
@@ -202,6 +216,21 @@ export default {
     },
     addressDialogClosed() {
       this.$refs.addressFormRef.resetFields()
+    },
+    // 显示物流信息弹窗
+    async showProgressBox() {
+      this.progressDialogVisible = true
+
+      const { data: res } = await this.$http.get('kuaidi/804909574412544580')
+      if (res.meta.status !== 200) {
+        return this.$message.error('获取物流信息失败')
+      }
+
+      this.progerssInfo = res.data
+    },
+    // 关闭物流弹窗的时候清空物流信息
+    progressClosed() {
+      this.progerssInfo = []
     }
   }
 }
