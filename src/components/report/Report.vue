@@ -68,6 +68,8 @@ export default {
     // echarts 配置  数据合并处理
     const result = _.merge(res.data, this.options)
 
+    console.log('result: ', result)
+
     // 使用刚指定的配置项和数据显示图表。
     myChart.setOption(result)
   },
