@@ -8,7 +8,7 @@ import VueQuillEditor from 'vue-quill-editor'
 
 import NProgress from 'nprogress'
 
-import './plugins/element.js'
+// import './plugins/element.js'
 import './assets/css/global.css'
 // 导入字体图标库
 import './assets/fonts/iconfont.css'
