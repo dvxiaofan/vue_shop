@@ -6,6 +6,8 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+
+  <% if(htmlWebpackPlugin.options.isProd) { %>
   <!-- 富文本样式 -->
   <link rel="stylesheet" href="https://cdn.staticfile.org/quill/1.3.4/quill.core.min.css">
   <link rel="stylesheet" href="https://cdn.staticfile.org/quill/1.3.4/quill.snow.min.css">
@@ -28,12 +30,15 @@
   </script>
   <script src="https://cdn.staticfile.org/element-ui/2.4.5/index.js">
   </script>
-  <title><%= htmlWebpackPlugin.options.title %></title>
+  <% } %>
+  <title><%= htmlWebpackPlugin.options.isProd ? '' : 'dev - ' %>后台管理系统</title>
 </head>
 
 <body>
   <noscript>
-    <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly
+    <strong>We're sorry but
+      <%= htmlWebpackPlugin.options.isProd ? '' : 'dev - ' %>后台管理系统 doesn't work
+      properly
       without JavaScript enabled. Please enable it to continue.</strong>
   </noscript>
   <div id="app"></div>
