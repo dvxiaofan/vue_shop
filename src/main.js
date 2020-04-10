@@ -5,6 +5,10 @@ import axios from 'axios'
 import TreeTables from 'vue-table-with-tree-grid'
 // 富文本编辑器
 import VueQuillEditor from 'vue-quill-editor'
+
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
+
 // 富文本编辑器样式
 import 'quill/dist/quill.core.css' // import styles
 import 'quill/dist/quill.snow.css' // for snow theme
@@ -17,11 +21,22 @@ import './assets/fonts/iconfont.css'
 
 axios.defaults.baseURL = 'https://www.liulongbin.top:8888/api/private/v1/'
 // 配置axios 请求拦截器, 添加token, 保证拥有获取数据的权限
+// request 拦截器中 展示进度条
 axios.interceptors.request.use(config => {
+  // 展示进度条
+  NProgress.start()
   // 为请求头对象添加token验证的Authorization字段
   config.headers.Authorization = window.sessionStorage.getItem('token')
   return config
 })
+
+// 在response 拦截器中隐藏进度条
+axios.interceptors.response.use(config => {
+  // 隐藏进度条
+  NProgress.done()
+  return config
+})
+
 Vue.prototype.$http = axios
 
 Vue.config.productionTip = false
