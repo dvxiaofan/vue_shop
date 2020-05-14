@@ -3,7 +3,7 @@
     <!-- 头部 -->
     <el-header>
       <div>
-        <img src="../assets/heima.png" alt="icon" />
+        <img class="m-icon" src="../assets/logo.png" alt="icon" />
         <span>后台管理系统</span>
       </div>
       <el-button type="info" @click="logout">退出</el-button>
@@ -147,5 +147,9 @@ export default {
   text-align: center;
   letter-spacing: 0.2em;
   cursor: pointer;
+}
+.m-icon {
+  width: 36px;
+  padding-left: 10px;
 }
 </style>
