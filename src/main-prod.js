@@ -7,6 +7,7 @@ import TreeTables from 'vue-table-with-tree-grid'
 import VueQuillEditor from 'vue-quill-editor'
 
 import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
 
 // import './plugins/element.js'
 import './assets/css/global.css'
